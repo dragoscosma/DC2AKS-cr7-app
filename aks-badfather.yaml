@@ -1,0 +1,43 @@
+#DC:a file manifesting what I want - It's declarative - stored in my repo
+#https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cr7-web1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cr7-web1
+  template:
+    metadata:
+      labels:
+        app: cr7-web1
+    spec:
+      containers:
+      - name: cr7-web1
+        image: dc2containerregistry.azurecr.io/images/badfather
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cr7-web1
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-tcp-idle-timeout: "4"
+#    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+#    service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "svc"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: cr7-web1
